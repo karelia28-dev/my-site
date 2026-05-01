@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Κουίζ — Τέχνη στους Αιώνες</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Spectral:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0e0a06;
+    --bg-mid: #1a1410;
+    --bg-card: #221a13;
+    --ink: #ede4d0;
+    --ink-soft: #b8a584;
+    --ink-faint: #6b5a44;
+    --gold: #c9a961;
+    --gold-bright: #e6c87a;
+    --gold-deep: #8a6f3f;
+    --crimson: #b8453d;
+    --teal: #4a9d7f;
+    --border: rgba(201, 169, 97, 0.22);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201, 169, 97, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(184, 69, 61, 0.05) 0%, transparent 55%),
+      var(--bg-deep);
+    background-attachment: fixed;
+    padding: 1.5rem 1rem 4rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    max-width: 680px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 1rem 0 1.5rem;
+  }
+
+  .eyebrow {
+    font-family: 'Spectral', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+    font-weight: 500;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: clamp(2rem, 7vw, 3rem);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  .ornament {
+    color: var(--gold);
+    font-size: 0.9rem;
+    margin: 1.1rem 0 0;
+    letter-spacing: 1.5em;
+    text-indent: 1.5em;
+    user-select: none;
+  }
+
+  /* Progress dots */
+  .progress {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1.75rem;
+    flex-wrap: wrap;
+  }
+
+  .progress-dot {
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--gold-deep);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+  .progress-dot.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 10px rgba(201, 169, 97, 0.5);
+    transform: scale(1.25);
+  }
+  .progress-dot.done {
+    background: var(--gold-deep);
+    border-color: var(--gold-deep);
+  }
+
+  /* Card */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    box-shadow:
+      0 1px 0 rgba(201, 169, 97, 0.1) inset,
+      0 25px 50px rgba(0, 0, 0, 0.5);
+  }
+  .card::before, .card::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--gold);
+    pointer-events: none;
+  }
+  .card::before {
+    top: -1px; left: -1px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .card::after {
+    bottom: -1px; right: -1px;
+    border-left: none;
+    border-top: none;
+  }
+
+  .question-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 3.75rem;
+    color: var(--gold);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+  }
+  .question-label {
+    text-align: center;
+    font-size: 0.68rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 1.75rem;
+  }
+
+  .prompt {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    text-align: center;
+    color: var(--ink-soft);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* Evidence links */
+  .evidence {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-bottom: 2rem;
+  }
+  .evidence-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem 1.15rem;
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .evidence-link:hover {
+    background: var(--bg-deep);
+    border-color: var(--gold);
+    transform: translateX(4px);
+  }
+  .evidence-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-deep);
+    border: 1px solid var(--gold-deep);
+    border-radius: 50%;
+  }
+  .evidence-text { flex: 1; min-width: 0; }
+  .evidence-type {
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.18rem;
+  }
+  .evidence-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--ink);
+    line-height: 1.3;
+    font-weight: 500;
+  }
+  .evidence-arrow {
+    color: var(--ink-faint);
+    font-size: 1.1rem;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+  }
+  .evidence-link:hover .evidence-arrow {
+    color: var(--gold);
+    transform: translateX(3px);
+  }
+
+  /* Question + options */
+  .divider {
+    text-align: center;
+    color: var(--gold-deep);
+    margin: 0.5rem 0 1rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.5em;
+  }
+
+  .question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    text-align: center;
+    color: var(--ink);
+    margin: 0 0 1.25rem;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+
+  .options {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .option {
+    width: 100%;
+    text-align: left;
+    padding: 0.95rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--gold-deep);
+    border-radius: 3px;
+    color: var(--ink);
+    font-family: 'Spectral', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .option:hover:not(:disabled) {
+    background: rgba(201, 169, 97, 0.08);
+    border-color: var(--gold);
+  }
+  .option:disabled { cursor: default; opacity: 0.55; }
+  .option.correct {
+    background: rgba(74, 157, 127, 0.18);
+    border-color: var(--teal);
+    color: #c4e8d4;
+    opacity: 1;
+  }
+  .option.incorrect {
+    background: rgba(184, 69, 61, 0.18);
+    border-color: var(--crimson);
+    color: #f0c4c0;
+    opacity: 1;
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    border-left: 3px solid var(--gold);
+    background: rgba(201, 169, 97, 0.05);
+    color: var(--ink-soft);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .feedback-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--gold-bright);
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+  }
+  .period-dates {
+    font-family: 'Spectral', serif;
+    font-style: normal;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    margin-left: 0.35rem;
+    white-space: nowrap;
+  }
+
+  /* Buttons */
+  .next-btn, .start-btn, .restart-btn {
+    display: inline-block;
+    margin: 1.5rem auto 0;
+    padding: 0.85rem 2.5rem;
+    background: var(--gold);
+    color: var(--bg-deep);
+    border: none;
+    border-radius: 3px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .next-btn { display: block; }
+  .next-btn:hover, .start-btn:hover, .restart-btn:hover {
+    background: var(--gold-bright);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(201, 169, 97, 0.3);
+  }
+
+  /* Start screen */
+  .start-screen { text-align: center; padding: 1.5rem 0.5rem; }
+  .start-screen p {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 0 auto 0.85rem;
+    max-width: 480px;
+  }
+
+  .periods-preview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 0.8rem;
+    margin: 1.5rem auto 0.5rem;
+    max-width: 540px;
+  }
+  .period-chip {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--gold);
+    border: 1px solid var(--gold-deep);
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+  }
+
+  /* Results */
+  .score-block {
+    text-align: center;
+    margin: 0.5rem 0 1.25rem;
+  }
+  .score-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(4rem, 18vw, 6rem);
+    color: var(--gold);
+    line-height: 1;
+    font-weight: 500;
+  }
+  .score-out {
+    color: var(--ink-faint);
+    font-size: 0.45em;
+    font-style: italic;
+  }
+  .verdict {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    text-align: center;
+    color: var(--ink);
+    margin: 0.25rem 0 1.25rem;
+    line-height: 1.35;
+  }
+
+  .review-list {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    border-top: 1px dotted var(--border);
+  }
+  .review-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 0.25rem;
+    border-bottom: 1px dotted var(--border);
+    font-size: 0.95rem;
+  }
+  .review-mark {
+    font-size: 1.1rem;
+    width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .review-mark.right { color: var(--teal); }
+  .review-mark.wrong { color: var(--crimson); }
+  .review-text { flex: 1; min-width: 0; }
+  .review-period {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+  .review-detail {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    margin-top: 0.1rem;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn 0.4s ease both; }
+
+  @media (min-width: 720px) {
+    body { padding: 2.5rem 2rem 5rem; }
+    .card { padding: 2.75rem 2.75rem; }
+    .question-num { font-size: 4.5rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="app" id="app"></div>
+
+  <script>
+    // 5 εποχές σε χρονολογική σειρά
+    const PERIODS = [
+      "Μεσαίωνας",
+      "Αναγέννηση",
+      "Μπαρόκ",
+      "Κλασικισμός",
+      "Ρομαντισμός"
+    ];
+
+    const PERIOD_DATES = {
+      "Μεσαίωνας":   "5ος – 15ος αιώνας",
+      "Αναγέννηση":  "14ος – 16ος αιώνας",
+      "Μπαρόκ":      "17ος – μέσα 18ου αι.",
+      "Κλασικισμός": "τέλη 18ου – αρχές 19ου αι.",
+      "Ρομαντισμός": "αρχές – μέσα 19ου αι."
+    };
+
+    const ROMAN = ['I','II','III','IV','V','VI','VII'];
+
+    // 7 ερωτήσεις σε 5 εποχές: Μεσαίωνας ×2, Αναγέννηση ×2, Μπαρόκ ×1, Κλασικισμός ×1, Ρομαντισμός ×1
+    const QUESTIONS = [
+      {
+        period: "Μεσαίωνας",
+        quickRef: "Bayeux",
+        painting: {
+          title: "Ταπητουργία του Μπαγιέ",
+          url: "https://en.wikipedia.org/wiki/Bayeux_Tapestry"
+        },
+        architecture: {
+          title: "Βασιλική του Saint-Sernin, Τουλούζη (Ρομανικός ρυθμός)",
+          url: "https://en.wikipedia.org/wiki/Basilica_of_Saint-Sernin,_Toulouse"
+        },
+        music: {
+          title: "Γρηγοριανό μέλος (Gregorian chant)",
+          url: "https://www.youtube.com/results?search_query=Gregorian+chant+medieval"
+        },
+        feedback: "Ρομανικός ρυθμός: στρογγυλά τόξα, παχιοί τοίχοι, μικρά ανοίγματα. Χειρόγραφα και ταπητουργίες αφηγούνται ιστορίες· μονοφωνικό θρησκευτικό μέλος."
+      },
+      {
+        period: "Μεσαίωνας",
+        quickRef: "Très Riches Heures",
+        painting: {
+          title: "Αδελφοί Λιμπούρ, «Très Riches Heures du Duc de Berry»",
+          url: "https://en.wikipedia.org/wiki/Tr%C3%A8s_Riches_Heures_du_Duc_de_Berry"
+        },
+        architecture: {
+          title: "Καθεδρικός της Σαρτρ (Γοτθικός ρυθμός)",
+          url: "https://en.wikipedia.org/wiki/Chartres_Cathedral"
+        },
+        music: {
+          title: "Pérotin, «Viderunt Omnes»",
+          url: "https://www.youtube.com/results?search_query=Perotin+Viderunt+Omnes"
+        },
+        feedback: "Γοτθικός ρυθμός: ψηλοί καθεδρικοί με οξυκόρυφα τόξα, βιτρώ και πέτρινους ιπτάμενους αντιστηρικτές. Πρώτη πολυφωνία με τη Σχολή της Notre-Dame."
+      },
+      {
+        period: "Αναγέννηση",
+        quickRef: "Botticelli",
+        painting: {
+          title: "Botticelli, «Η Γέννηση της Αφροδίτης»",
+          url: "https://en.wikipedia.org/wiki/The_Birth_of_Venus"
+        },
+        architecture: {
+          title: "Tempietto του Bramante, Ρώμη",
+          url: "https://en.wikipedia.org/wiki/Tempietto"
+        },
+        music: {
+          title: "Josquin des Prez, «Ave Maria»",
+          url: "https://www.youtube.com/results?search_query=Josquin+des+Prez+Ave+Maria"
+        },
+        feedback: "Ιταλική Αναγέννηση: επιστροφή στο κλασικό ιδεώδες, αυστηρή προοπτική, ανθρωποκεντρισμός. Στη μουσική κυριαρχεί η ισορροπημένη πολυφωνία."
+      },
+      {
+        period: "Αναγέννηση",
+        quickRef: "Van Eyck",
+        painting: {
+          title: "Jan van Eyck, «Πορτρέτο των Αρνολφίνι»",
+          url: "https://en.wikipedia.org/wiki/Arnolfini_Portrait"
+        },
+        architecture: {
+          title: "Villa La Rotonda — Andrea Palladio",
+          url: "https://en.wikipedia.org/wiki/Villa_La_Rotonda"
+        },
+        music: {
+          title: "Thomas Tallis, «Spem in alium»",
+          url: "https://www.youtube.com/results?search_query=Tallis+Spem+in+alium"
+        },
+        feedback: "Βόρεια Αναγέννηση και ώριμη φάση: λεπτομερής ρεαλισμός με ελαιογραφία, αυστηρή συμμετρία στην αρχιτεκτονική, πλούσια πολυφωνία."
+      },
+      {
+        period: "Μπαρόκ",
+        quickRef: "Rembrandt",
+        painting: {
+          title: "Rembrandt, «Η Νυχτερινή Περιπολία»",
+          url: "https://en.wikipedia.org/wiki/The_Night_Watch"
+        },
+        architecture: {
+          title: "Πλατεία του Αγίου Πέτρου — Bernini",
+          url: "https://en.wikipedia.org/wiki/St._Peter%27s_Square"
+        },
+        music: {
+          title: "J. S. Bach, Τοκάτα και Φούγκα σε ρε ελάσσονα",
+          url: "https://www.youtube.com/results?search_query=Bach+Toccata+and+Fugue+D+minor"
+        },
+        feedback: "Δραματικές αντιθέσεις φωτός-σκιάς, θεατρικότητα, μνημειώδης κίνηση και πλούτος. Πολύπλοκη πολυφωνία και έντονη συναισθηματική φόρτιση στη μουσική."
+      },
+      {
+        period: "Κλασικισμός",
+        quickRef: "David",
+        painting: {
+          title: "Jacques-Louis David, «Ο θάνατος του Μαρά»",
+          url: "https://en.wikipedia.org/wiki/The_Death_of_Marat"
+        },
+        architecture: {
+          title: "Πύλη του Βρανδεμβούργου, Βερολίνο",
+          url: "https://en.wikipedia.org/wiki/Brandenburg_Gate"
+        },
+        music: {
+          title: "Haydn, Συμφωνία αρ. 94 «Έκπληξη»",
+          url: "https://www.youtube.com/results?search_query=Haydn+Symphony+94+Surprise"
+        },
+        feedback: "Επιστροφή στην ελληνορωμαϊκή λιτότητα, καθαρές γραμμές, ηθικά μηνύματα. Στη μουσική: ισορροπία, διαύγεια και σαφής συμφωνική δομή."
+      },
+      {
+        period: "Ρομαντισμός",
+        quickRef: "Delacroix",
+        painting: {
+          title: "Eugène Delacroix, «Η Ελευθερία οδηγεί τον λαό»",
+          url: "https://en.wikipedia.org/wiki/Liberty_Leading_the_People"
+        },
+        architecture: {
+          title: "Παλάτι του Ουέστμινστερ, Λονδίνο (Νεογοτθικό)",
+          url: "https://en.wikipedia.org/wiki/Palace_of_Westminster"
+        },
+        music: {
+          title: "Frédéric Chopin, Νυχτερινό op. 9 αρ. 2",
+          url: "https://www.youtube.com/results?search_query=Chopin+Nocturne+Op+9+No+2"
+        },
+        feedback: "Έμφαση στο συναίσθημα, την ιστορία, την ελευθερία και τη φύση. Νεογοτθικά κτίρια· πιο προσωπική, εκφραστική και τεχνικά απαιτητική μουσική."
+      }
+    ];
+
+    // ----- State -----
+    const state = {
+      screen: 'start',     // 'start' | 'quiz' | 'results'
+      current: 0,          // θέση στην παίξιμη σειρά
+      answers: [],         // απαντήσεις ανά θέση παιξίματος
+      questionOrder: []    // θέση παιξίματος -> αρχικό index στο QUESTIONS
+    };
+
+    // ----- Helpers -----
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startQuiz() {
+      state.questionOrder = shuffle(QUESTIONS.map((_, i) => i));
+      state.current = 0;
+      state.answers = [];
+      state.screen = 'quiz';
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // ----- Renderers -----
+    function render() {
+      const app = document.getElementById('app');
+      if (state.screen === 'start') app.innerHTML = renderStart();
+      else if (state.screen === 'quiz') app.innerHTML = renderQuiz();
+      else app.innerHTML = renderResults();
+      attachHandlers();
+    }
+
+    function renderStart() {
+      return `
+        <header class="fade-in">
+          <div class="eyebrow">Διαδραστικό Κουίζ</div>
+          <h1>Τέχνη στους Αιώνες</h1>
+          <div class="ornament">· ✦ ·</div>
+        </header>
+        <div class="card fade-in">
+          <div class="start-screen">
+            <p>Επτά ερωτήσεις, πέντε εποχές της τέχνης. Σε κάθε ερώτηση θα δεις έναν <strong style="color:var(--gold-bright)">πίνακα</strong>, ένα <strong style="color:var(--gold-bright)">αρχιτεκτονικό μνημείο</strong> και ένα <strong style="color:var(--gold-bright)">μουσικό έργο</strong> της ίδιας εποχής. Άνοιξε τους συνδέσμους, παρατήρησε, άκουσε — και αναγνώρισε σε ποια εποχή ανήκουν.</p>
+            <div class="periods-preview">
+              ${PERIODS.map(p => `<span class="period-chip">${p}</span>`).join('')}
+            </div>
+            <button class="start-btn" id="start-btn">Ξεκίνημα</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuiz() {
+      const i = state.current;
+      const q = QUESTIONS[state.questionOrder[i]];
+      const userAnswer = state.answers[i];
+      const answered = userAnswer !== undefined;
+      const total = state.questionOrder.length;
+
+      return `
+        <header>
+          <div class="eyebrow">Τέχνη στους Αιώνες</div>
+          <div class="progress" aria-label="Πρόοδος">
+            ${state.questionOrder.map((_, idx) => {
+              let cls = 'progress-dot';
+              if (idx < i) cls += ' done';
+              else if (idx === i) cls += ' active';
+              return `<span class="${cls}"></span>`;
+            }).join('')}
+          </div>
+        </header>
+        <div class="card fade-in" key="${i}">
+          <div class="question-num">${ROMAN[i]}</div>
+          <div class="question-label">Ερώτηση ${i + 1} από ${total}</div>
+          <div class="prompt">Παρατήρησε τα τρία έργα που ακολουθούν.</div>
+
+          <div class="evidence">
+            <a class="evidence-link" href="${q.painting.url}" target="_blank" rel="noopener">
+              <div class="evidence-icon">🎨</div>
+              <div class="evidence-text">
+                <div class="evidence-type">Πίνακας</div>
+                <div class="evidence-title">${escapeHTML(q.painting.title)}</div>
+              </div>
+              <div class="evidence-arrow">↗</div>
+            </a>
+            <a class="evidence-link" href="${q.architecture.url}" target="_blank" rel="noopener">
+              <div class="evidence-icon">🏛️</div>
+              <div class="evidence-text">
+                <div class="evidence-type">Αρχιτεκτονική</div>
+                <div class="evidence-title">${escapeHTML(q.architecture.title)}</div>
+              </div>
+              <div class="evidence-arrow">↗</div>
+            </a>
+            <a class="evidence-link" href="${q.music.url}" target="_blank" rel="noopener">
+              <div class="evidence-icon">🎵</div>
+              <div class="evidence-text">
+                <div class="evidence-type">Μουσική</div>
+                <div class="evidence-title">${escapeHTML(q.music.title)}</div>
+              </div>
+              <div class="evidence-arrow">↗</div>
+            </a>
+          </div>
+
+          <div class="divider">· · ·</div>
+          <div class="question">Σε ποια εποχή ανήκουν;</div>
+
+          <div class="options" role="radiogroup">
+            ${PERIODS.map(opt => {
+              let cls = 'option';
+              if (answered) {
+                if (opt === q.period) cls += ' correct';
+                else if (opt === userAnswer) cls += ' incorrect';
+              }
+              const dis = answered ? 'disabled' : '';
+              return `<button class="${cls}" data-choice="${escapeHTML(opt)}" ${dis}>${escapeHTML(opt)}</button>`;
+            }).join('')}
+          </div>
+
+          ${answered ? `
+            <div class="feedback fade-in">
+              <div class="feedback-title">
+                ${userAnswer === q.period ? 'Σωστά! ' : 'Η σωστή απάντηση είναι: '}${escapeHTML(q.period)}
+                <span class="period-dates">· ${escapeHTML(PERIOD_DATES[q.period])}</span>
+              </div>
+              ${escapeHTML(q.feedback)}
+            </div>
+            <button class="next-btn" id="next-btn">
+              ${i === total - 1 ? 'Δες τα αποτελέσματα' : 'Επόμενη ερώτηση'}
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderResults() {
+      const total = state.questionOrder.length;
+      const correct = state.answers.filter((a, idx) => a === QUESTIONS[state.questionOrder[idx]].period).length;
+
+      let verdict;
+      if (correct === total) verdict = "Έξοχα! Γνωρίζεις την ιστορία της τέχνης σαν ειδικός.";
+      else if (correct >= 5) verdict = "Πολύ καλά! Έχεις στέρεη γνώση των εποχών.";
+      else if (correct >= 3) verdict = "Καλή προσπάθεια — μερικές εποχές αξίζουν δεύτερη ματιά.";
+      else verdict = "Ώρα να ξαναπεριηγηθείς στους αιώνες της τέχνης!";
+
+      return `
+        <header class="fade-in">
+          <div class="eyebrow">Τέλος Κουίζ</div>
+          <h1>Αποτελέσματα</h1>
+          <div class="ornament">· ✦ ·</div>
+        </header>
+        <div class="card fade-in">
+          <div class="score-block">
+            <div class="score-num">${correct}<span class="score-out"> / ${total}</span></div>
+          </div>
+          <div class="verdict">${verdict}</div>
+
+          <ul class="review-list">
+            ${state.questionOrder.map((origIdx, playIdx) => {
+              const q = QUESTIONS[origIdx];
+              const ans = state.answers[playIdx];
+              const right = ans === q.period;
+              return `
+                <li class="review-item">
+                  <span class="review-mark ${right ? 'right' : 'wrong'}">${right ? '✓' : '✗'}</span>
+                  <div class="review-text">
+                    <div class="review-period">${escapeHTML(q.period)}</div>
+                    <div class="review-detail">
+                      ${escapeHTML(q.quickRef)}${!right ? ` · επέλεξες: ${escapeHTML(ans)}` : ''}
+                    </div>
+                  </div>
+                </li>
+              `;
+            }).join('')}
+          </ul>
+
+          <button class="restart-btn" id="restart-btn" style="display:block; margin-left:auto; margin-right:auto;">Ξανά</button>
+        </div>
+      `;
+    }
+
+    // ----- Handlers -----
+    function attachHandlers() {
+      const startBtn = document.getElementById('start-btn');
+      if (startBtn) startBtn.addEventListener('click', startQuiz);
+
+      const nextBtn = document.getElementById('next-btn');
+      if (nextBtn) nextBtn.addEventListener('click', () => {
+        if (state.current < state.questionOrder.length - 1) {
+          state.current++;
+          render();
+        } else {
+          state.screen = 'results';
+          render();
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      const restartBtn = document.getElementById('restart-btn');
+      if (restartBtn) restartBtn.addEventListener('click', startQuiz);
+
+      document.querySelectorAll('.option').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (state.answers[state.current] !== undefined) return;
+          state.answers[state.current] = btn.dataset.choice;
+          render();
+        });
+      });
+    }
+
+    // ----- Init -----
+    render();
+  </script>
+</body>
+</html>
